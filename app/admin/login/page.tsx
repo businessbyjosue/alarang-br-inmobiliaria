@@ -30,13 +30,13 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#F4F6F8]">
+    <div className="min-h-screen flex items-center justify-center bg-[#F3F1EC]">
       <div className="bg-white rounded-2xl shadow-lg p-10 w-full max-w-sm">
         {/* Logo */}
         <div className="flex items-center gap-2 mb-6">
-          <span className="text-[14px] font-bold tracking-[0.15em] text-[#1a1a2e] uppercase">Alarang</span>
-          <span className="w-px h-3.5 bg-[#4FA8D5]/40" />
-          <span className="text-[10px] font-semibold tracking-[0.3em] text-[#4FA8D5] uppercase">B.R.</span>
+          <span className="text-[14px] font-bold tracking-[0.15em] text-[#1B2A45] uppercase">Alarang</span>
+          <span className="w-px h-3.5 bg-[#B08D57]/40" />
+          <span className="text-[10px] font-semibold tracking-[0.3em] text-[#B08D57] uppercase">B.R.</span>
         </div>
         <p className="text-[13px] text-gray-400 mb-8 tracking-wide">Panel de administración</p>
 
@@ -46,7 +46,7 @@ export default function LoginPage() {
             placeholder="Contraseña"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#4FA8D5]"
+            className="border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#B08D57]"
             required
             autoFocus
           />
@@ -61,7 +61,7 @@ export default function LoginPage() {
           <button
             type="submit"
             disabled={loading}
-            className="bg-[#4FA8D5] hover:bg-[#3a95c2] text-white font-semibold rounded-full py-3 text-sm transition-colors disabled:opacity-60 mt-1"
+            className="bg-[#B08D57] hover:bg-[#96784A] text-white font-semibold rounded-full py-3 text-sm transition-colors disabled:opacity-60 mt-1"
           >
             {loading ? "Entrando…" : "Entrar"}
           </button>

@@ -1,7 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { Propiedad } from "@/lib/types";
-import { formatPrecio, getPortada, buildWhatsAppUrl } from "@/lib/utils";
+import { formatPrecio, getPortada, buildWhatsAppUrl, categoriaLabel, categoriaBadgeCls } from "@/lib/utils";
 
 export default function PropiedadCard({ p }: { p: Propiedad }) {
   const portada = getPortada(p.propiedad_imagenes);
@@ -16,7 +16,7 @@ export default function PropiedadCard({ p }: { p: Propiedad }) {
   ].filter(Boolean) as { icon: React.ReactNode; value: number; label: string }[];
 
   return (
-    <article className="group bg-white rounded-2xl overflow-hidden border border-gray-100 shadow-sm hover:shadow-[0_8px_32px_rgba(0,0,0,0.09)] transition-all duration-300 flex flex-col">
+    <article className="group bg-white rounded-sm overflow-hidden border border-[#E4E0D6] hover:border-[#B08D57]/50 shadow-sm hover:shadow-[0_10px_34px_rgba(27,42,69,0.10)] transition-all duration-300 flex flex-col">
 
       {/* Imagen */}
       <Link href={`/propiedades/${p.id}`} className="relative block aspect-[4/3] overflow-hidden bg-gray-100">
@@ -33,14 +33,11 @@ export default function PropiedadCard({ p }: { p: Propiedad }) {
 
         {/* Badges */}
         <div className="absolute top-3 left-3 flex gap-1.5">
-          <span className={`text-[10px] font-bold tracking-[0.18em] uppercase px-3 py-1 rounded-full backdrop-blur-sm
-            ${p.tipo_operacion === "renta"
-              ? "bg-[#4FA8D5] text-white"
-              : "bg-[#1a1a2e] text-white"}`}>
-            {p.tipo_operacion}
+          <span className={`font-display text-[10px] font-bold tracking-[0.18em] uppercase px-3 py-1 rounded-sm backdrop-blur-sm ${categoriaBadgeCls(p.tipo_operacion)}`}>
+            {categoriaLabel(p.tipo_operacion)}
           </span>
           {p.tipo_propiedad && (
-            <span className="text-[10px] font-semibold tracking-wide uppercase px-3 py-1 rounded-full bg-white/85 backdrop-blur-sm text-gray-600 capitalize">
+            <span className="text-[10px] font-semibold tracking-wide uppercase px-3 py-1 rounded-sm bg-white/85 backdrop-blur-sm text-gray-600 capitalize">
               {p.tipo_propiedad}
             </span>
           )}
@@ -59,7 +56,7 @@ export default function PropiedadCard({ p }: { p: Propiedad }) {
             </p>
           )}
           <Link href={`/propiedades/${p.id}`}>
-            <h3 className="text-[15px] font-semibold text-[#1a1a2e] leading-snug hover:text-[#4FA8D5] transition-colors line-clamp-2">
+            <h3 className="text-[15px] font-semibold text-[#1B2A45] leading-snug hover:text-[#B08D57] transition-colors line-clamp-2">
               {p.titulo}
             </h3>
           </Link>
@@ -71,7 +68,7 @@ export default function PropiedadCard({ p }: { p: Propiedad }) {
             {caracteristicas.map((c, i) => (
               <div key={i} className="flex items-center gap-1.5 text-gray-500">
                 <span className="text-gray-400">{c.icon}</span>
-                <span className="text-[12px] font-medium text-[#1a1a2e]">{c.value}</span>
+                <span className="text-[12px] font-medium text-[#1B2A45]">{c.value}</span>
                 <span className="text-[11px] text-gray-400">{c.label}</span>
               </div>
             ))}
@@ -79,13 +76,13 @@ export default function PropiedadCard({ p }: { p: Propiedad }) {
         )}
 
         {/* Divisor */}
-        <div className="border-t border-gray-100 mt-auto pt-3 flex items-center justify-between">
-          <span className="text-[17px] font-bold text-[#1a1a2e] tracking-tight">{precio}</span>
+        <div className="border-t border-[#E4E0D6] mt-auto pt-3 flex items-center justify-between">
+          <span className="font-display text-[17px] font-extrabold text-[#1B2A45] tracking-tight">{precio}</span>
           <a
             href={waUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center gap-1.5 text-[12px] font-semibold text-[#25D366] border border-[#25D366]/25 hover:bg-[#25D366] hover:text-white hover:border-[#25D366] px-3.5 py-1.5 rounded-full transition-all duration-200"
+            className="flex items-center gap-1.5 text-[12px] font-semibold text-[#25D366] border border-[#25D366]/25 hover:bg-[#25D366] hover:text-white hover:border-[#25D366] px-3.5 py-1.5 rounded-sm transition-all duration-200"
           >
             <WhatsAppIcon />
             WhatsApp

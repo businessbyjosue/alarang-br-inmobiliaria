@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import Logo from "./Logo";
 
 const WHATSAPP = "https://wa.me/527712026857";
 const FACEBOOK = "https://www.facebook.com/share/1B6n82QjaY/?mibextid=wwXIfr";
@@ -21,31 +22,33 @@ export default function Navbar() {
       <div className="max-w-6xl mx-auto px-5 sm:px-8 h-14 flex items-center justify-between">
 
         {/* Logo */}
-        <Link href="/" className="flex items-center gap-2 group">
-          <span className="text-[14px] font-bold tracking-[0.15em] text-[#1a1a2e] uppercase leading-none">Alarang</span>
-          <span className="w-px h-3.5 bg-[#4FA8D5]/40 mx-0.5" />
-          <span className="text-[10px] font-semibold tracking-[0.3em] text-[#4FA8D5] uppercase leading-none">B.R.</span>
+        <Link href="/" className="group">
+          <Logo />
         </Link>
 
         {/* Desktop nav */}
-        <nav className="hidden md:flex items-center gap-8">
+        <nav className="hidden md:flex items-center gap-7">
           <Link href="/#propiedades"
-            className="text-[13px] font-medium tracking-wide text-gray-500 hover:text-[#1a1a2e] transition-colors">
+            className="text-[13px] font-medium tracking-wide text-gray-500 hover:text-[#1B2A45] transition-colors">
             Propiedades
           </Link>
+          <Link href="/vende-tu-propiedad"
+            className="text-[13px] font-medium tracking-wide text-gray-500 hover:text-[#1B2A45] transition-colors">
+            Vende tu propiedad
+          </Link>
           <a href={FACEBOOK} target="_blank" rel="noopener noreferrer"
-            className="text-[13px] font-medium tracking-wide text-gray-500 hover:text-[#1a1a2e] transition-colors">
+            className="text-[13px] font-medium tracking-wide text-gray-500 hover:text-[#1B2A45] transition-colors">
             Facebook
           </a>
           <a href={WHATSAPP} target="_blank" rel="noopener noreferrer"
-            className="text-[13px] font-medium tracking-wide text-[#1a1a2e] border border-[#1a1a2e]/20 hover:border-[#1a1a2e] px-5 py-2 rounded-full transition-all hover:bg-[#1a1a2e] hover:text-white">
+            className="text-[13px] font-semibold tracking-wide text-white bg-[#1B2A45] hover:bg-[#B08D57] px-5 py-2 rounded-sm transition-colors">
             Contactar
           </a>
         </nav>
 
         {/* Mobile toggle */}
         <button onClick={() => setOpen(!open)}
-          className="md:hidden p-1.5 text-gray-400 hover:text-[#1a1a2e] transition-colors">
+          className="md:hidden p-1.5 text-gray-400 hover:text-[#1B2A45] transition-colors">
           {open ? <XIcon /> : <MenuIcon />}
         </button>
       </div>
@@ -55,15 +58,19 @@ export default function Navbar() {
         <div className="md:hidden border-t border-gray-100 bg-white">
           <div className="max-w-6xl mx-auto px-5 py-5 flex flex-col gap-5">
             <Link href="/#propiedades" onClick={() => setOpen(false)}
-              className="text-sm font-medium text-gray-600 hover:text-[#1a1a2e]">
+              className="text-sm font-medium text-gray-600 hover:text-[#1B2A45]">
               Propiedades
             </Link>
+            <Link href="/vende-tu-propiedad" onClick={() => setOpen(false)}
+              className="text-sm font-medium text-gray-600 hover:text-[#1B2A45]">
+              Vende tu propiedad
+            </Link>
             <a href={FACEBOOK} target="_blank" rel="noopener noreferrer"
-              className="text-sm font-medium text-gray-600 hover:text-[#1a1a2e]">
+              className="text-sm font-medium text-gray-600 hover:text-[#1B2A45]">
               Facebook
             </a>
             <a href={WHATSAPP} target="_blank" rel="noopener noreferrer"
-              className="text-sm font-semibold text-center border border-[#1a1a2e] text-[#1a1a2e] px-5 py-3 rounded-full hover:bg-[#1a1a2e] hover:text-white transition-all">
+              className="text-sm font-semibold text-center bg-[#1B2A45] text-white px-5 py-3 rounded-sm hover:bg-[#B08D57] transition-colors">
               Contactar por WhatsApp
             </a>
           </div>

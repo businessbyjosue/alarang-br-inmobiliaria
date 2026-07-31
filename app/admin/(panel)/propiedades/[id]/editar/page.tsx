@@ -33,11 +33,11 @@ export default async function EditarPropiedadPage({
   return (
     <div className="max-w-2xl">
       <div className="flex items-center gap-3 mb-6">
-        <Link href="/admin" className="text-[13px] text-gray-400 hover:text-[#1a1a2e] transition-colors">
+        <Link href="/admin" className="text-[13px] text-gray-400 hover:text-[#1B2A45] transition-colors">
           ← Volver
         </Link>
         <span className="text-gray-300">/</span>
-        <h1 className="text-lg font-bold text-[#1a1a2e] truncate">{propiedad.titulo}</h1>
+        <h1 className="text-lg font-bold text-[#1B2A45] truncate">{propiedad.titulo}</h1>
       </div>
 
       {/* Datos */}

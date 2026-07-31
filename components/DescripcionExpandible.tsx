@@ -15,7 +15,7 @@ export default function DescripcionExpandible({ texto }: { texto: string }) {
       {necesitaTruncar && (
         <button
           onClick={() => setExpandida((v) => !v)}
-          className="mt-2 text-[13px] font-medium text-[#4FA8D5] hover:text-[#3a95c2] transition-colors"
+          className="mt-2 text-[13px] font-medium text-[#B08D57] hover:text-[#96784A] transition-colors"
         >
           {expandida ? "Ver menos ↑" : "Ver más ↓"}
         </button>

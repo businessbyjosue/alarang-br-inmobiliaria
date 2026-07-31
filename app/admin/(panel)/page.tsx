@@ -3,7 +3,7 @@ import Link from "next/link";
 import { verifySession } from "@/lib/auth";
 import { createServerClient } from "@/lib/supabase-server";
 import { Propiedad } from "@/lib/types";
-import { formatPrecio } from "@/lib/utils";
+import { formatPrecio, categoriaLabel } from "@/lib/utils";
 import TogglePublicado from "@/components/admin/TogglePublicado";
 import EliminarPropiedad from "@/components/admin/EliminarPropiedad";
 
@@ -23,18 +23,18 @@ export default async function AdminPage() {
     <div>
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-xl font-bold text-[#1a1a2e]">Propiedades</h1>
+          <h1 className="text-xl font-bold text-[#1B2A45]">Propiedades</h1>
           <p className="text-sm text-gray-400">{lista.length} en total</p>
         </div>
         <Link href="/admin/propiedades/nueva"
-          className="bg-[#4FA8D5] hover:bg-[#3a95c2] text-white text-sm font-semibold px-5 py-2.5 rounded-full transition-colors">
+          className="bg-[#B08D57] hover:bg-[#96784A] text-white text-sm font-semibold px-5 py-2.5 rounded-full transition-colors">
           + Nueva
         </Link>
       </div>
 
       {lista.length === 0 ? (
         <div className="bg-white rounded-2xl p-12 text-center text-gray-400 text-sm">
-          No hay propiedades. <Link href="/admin/propiedades/nueva" className="text-[#4FA8D5] underline">Crea la primera.</Link>
+          No hay propiedades. <Link href="/admin/propiedades/nueva" className="text-[#B08D57] underline">Crea la primera.</Link>
         </div>
       ) : (
         <div className="flex flex-col gap-2">
@@ -47,9 +47,9 @@ export default async function AdminPage() {
 
               {/* Info */}
               <div className="flex-1 min-w-0">
-                <p className="text-[14px] font-semibold text-[#1a1a2e] truncate">{p.titulo}</p>
+                <p className="text-[14px] font-semibold text-[#1B2A45] truncate">{p.titulo}</p>
                 <p className="text-[12px] text-gray-400">
-                  {[p.colonia, p.ciudad].filter(Boolean).join(", ")} · <span className="capitalize">{p.tipo_operacion}</span> · {formatPrecio(p.precio, p.tipo_operacion, p.moneda)}
+                  {[p.colonia, p.ciudad].filter(Boolean).join(", ")} · {categoriaLabel(p.tipo_operacion)} · {formatPrecio(p.precio, p.tipo_operacion, p.moneda)}
                 </p>
               </div>
 
@@ -57,7 +57,7 @@ export default async function AdminPage() {
               <div className="flex items-center gap-3 shrink-0">
                 <TogglePublicado id={p.id} publicado={p.publicado} />
                 <Link href={`/admin/propiedades/${p.id}/editar`}
-                  className="text-[12px] font-medium text-[#4FA8D5] hover:underline">
+                  className="text-[12px] font-medium text-[#B08D57] hover:underline">
                   Editar
                 </Link>
                 <EliminarPropiedad id={p.id} titulo={p.titulo} />

@@ -1,5 +1,5 @@
 import { supabase } from "./supabase";
-import { PropiedadImagen, TipoOperacion, Moneda } from "./types";
+import { PropiedadImagen, TipoOperacion, Moneda, CATEGORIAS } from "./types";
 
 export const BUCKET = "Propiedades";
 
@@ -30,6 +30,31 @@ export function getPortada(imagenes?: PropiedadImagen[]): string {
     ? portada.ruta_storage
     : [...imagenes].sort((a, b) => a.orden - b.orden)[0].ruta_storage;
   return imagenUrl(ruta);
+}
+
+export function categoriaLabel(tipoOperacion: TipoOperacion): string {
+  return CATEGORIAS.find((c) => c.value === tipoOperacion)?.label ?? tipoOperacion;
+}
+
+// Badge de categoría: bronce para renta, marino para venta, carbón para terreno.
+export function categoriaBadgeCls(tipoOperacion: TipoOperacion): string {
+  if (tipoOperacion === "renta") return "bg-[#B08D57] text-white";
+  if (tipoOperacion === "terreno") return "bg-[#20242C] text-white";
+  return "bg-[#1B2A45] text-white";
+}
+
+// Mapa sin API key: Google Maps en modo embed a partir del texto de ubicación.
+export function mapaQuery(partes: (string | null | undefined)[]): string | null {
+  const q = partes.filter(Boolean).join(", ").trim();
+  return q.length > 0 ? q : null;
+}
+
+export function mapaEmbedUrl(query: string): string {
+  return `https://www.google.com/maps?q=${encodeURIComponent(query)}&z=14&output=embed`;
+}
+
+export function mapaLinkUrl(query: string): string {
+  return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query)}`;
 }
 
 export function buildWhatsAppUrl(titulo: string, precio: string): string {

@@ -59,17 +59,25 @@ Construir una web inmobiliaria profesional, premium, responsive y fácil de usar
 - Buena presentación de propiedades.
 - Navegación simple.
 - Diseño innovador, elegante y moderno.
-- Paleta de colores Azul celeste y gris claro que ayuden al estilo premium.
+- Paleta oficial (propuesta de identidad Claude Design):
+  - Azul marino `#1B2A45` — primario
+  - Bronce cálido `#B08D57` — acento
+  - Hueso `#F3F1EC` — neutro claro
+  - Carbón `#20242C` — neutro oscuro
+- Tipografía: Montserrat (títulos y logotipo) + Inter (cuerpo).
+- Logotipo: concepto "Cima" (vértice sobre línea de horizonte), en `components/Logo.tsx`.
+- Radios de 4px (`rounded-sm`), no pastilla, para lectura editorial.
 
 ## Flujo sugerido
 1. Definir estructura del proyecto. ✅
 2. Proponer stack y arquitectura. ✅
-3. Crear sistema visual y layout base.
-4. Crear listado de propiedades.
-5. Crear filtros.
-6. Crear vista de detalle de propiedad.
-7. Crear panel admin.
-8. Ajustar responsive y pulir experiencia.
+3. Crear sistema visual y layout base. ✅
+4. Crear listado de propiedades. ✅
+5. Crear filtros. ✅
+6. Crear vista de detalle de propiedad. ✅
+7. Crear panel admin. ✅
+8. Ajustar responsive y pulir experiencia. ✅
+9. Identidad visual definitiva + categorías + captación de leads. ✅
 
 ## Regla importante
 Si falta información, pregunta corto.
@@ -98,28 +106,53 @@ node scripts/hash-password.js TU_CONTRASEÑA
 ```
 NEXT_PUBLIC_SUPABASE_URL=
 NEXT_PUBLIC_SUPABASE_ANON_KEY=
+SUPABASE_SERVICE_ROLE_KEY=
 AUTH_SECRET=           # string aleatorio largo
 ADMIN_PASSWORD_HASH=   # generado con scripts/hash-password.js
+
+# Correo del formulario "Vende tu propiedad" (Resend)
+RESEND_API_KEY=        # https://resend.com — plan gratis 3.000 correos/mes
+EMAIL_TO=              # correo del administrador que recibe las solicitudes
+EMAIL_FROM=            # remitente verificado; provisional: onboarding@resend.dev
 ```
+Sin las tres variables de correo la solicitud igual se guarda en la base de datos;
+solo no se envía la notificación.
 
 ## Arquitectura
 ```
 app/
-  page.tsx                  # Home: listado + filtros
-  propiedades/[id]/         # Vista detalle
+  page.tsx                  # Home: listado + filtros (?categoria&zona&min&max)
+  propiedades/[id]/         # Vista detalle + mapa de la zona
+  vende-tu-propiedad/
+    page.tsx                # Landing del formulario de captación
+    actions.ts              # Guarda en BD + notifica por correo
   admin/
     page.tsx                # Panel admin (protegido)
+    solicitudes/page.tsx    # Solicitudes recibidas del formulario
     login/page.tsx          # Login admin
   api/auth/route.ts         # Login/logout API
 components/                 # Componentes reutilizables
+  Logo.tsx                  # Logotipo "Cima" (marca + wordmark)
+  Filtros.tsx               # Filtros por categoría, zona y precio (URL)
+  VenderForm.tsx            # Formulario "Vende tu propiedad"
 lib/
   supabase.ts               # Cliente Supabase
   auth.ts                   # Session JWT (httpOnly cookie)
-  types.ts                  # Tipos TypeScript
-middleware.ts               # Protege rutas /admin/*
+  types.ts                  # Tipos TypeScript + CATEGORIAS
+  email.ts                  # Envío por Resend (HTTP, sin dependencias)
+  whatsapp.ts               # Stub preparado para notificar por WhatsApp
+proxy.ts                    # Protege rutas /admin/*
 scripts/
   hash-password.js          # Genera hash bcrypt para contraseña admin
+supabase/
+  schema.sql                # Esquema de referencia
+  migrations/               # Migraciones a ejecutar en el SQL Editor
 ```
+
+## Categorías
+`tipo_operacion` funciona como categoría con tres valores: `venta`, `renta`, `terreno`.
+Se reutiliza la columna existente en vez de añadir una nueva. Las etiquetas
+salen de `CATEGORIAS` en `lib/types.ts`.
 
 ## Auth admin
 - Ruta `/admin/*` protegida por middleware con JWT en cookie httpOnly.

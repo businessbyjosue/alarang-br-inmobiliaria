@@ -61,7 +61,7 @@ export default function Galeria({ imagenes, titulo }: { imagenes: PropiedadImage
               key={img.id}
               onClick={() => setActiva(i)}
               className={`relative flex-shrink-0 w-16 h-16 rounded-lg overflow-hidden border-2 transition-all
-                ${i === activa ? "border-[#4FA8D5]" : "border-transparent opacity-60 hover:opacity-90"}`}>
+                ${i === activa ? "border-[#B08D57]" : "border-transparent opacity-60 hover:opacity-90"}`}>
               <Image src={imagenUrl(img.ruta_storage)} alt="" fill sizes="64px" className="object-cover" />
             </button>
           ))}

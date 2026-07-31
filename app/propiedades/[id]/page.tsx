@@ -3,7 +3,15 @@ import Link from "next/link";
 import { JSX } from "react";
 import { createServerClient } from "@/lib/supabase-server";
 import { Propiedad } from "@/lib/types";
-import { formatPrecio, buildWhatsAppUrl } from "@/lib/utils";
+import {
+  formatPrecio,
+  buildWhatsAppUrl,
+  categoriaLabel,
+  categoriaBadgeCls,
+  mapaQuery,
+  mapaEmbedUrl,
+  mapaLinkUrl,
+} from "@/lib/utils";
 import Galeria from "@/components/Galeria";
 import DescripcionExpandible from "@/components/DescripcionExpandible";
 
@@ -28,6 +36,8 @@ export default async function PropiedadPage({ params }: { params: Promise<{ id: 
   const waUrl = buildWhatsAppUrl(propiedad.titulo, precio);
   const imagenes = [...(propiedad.propiedad_imagenes ?? [])].sort((a, b) => a.orden - b.orden);
   const ubicacion = [propiedad.colonia, propiedad.ciudad, propiedad.estado].filter(Boolean).join(", ");
+  // Mapa a partir del texto de ubicación — sin API key ni columnas nuevas.
+  const consultaMapa = mapaQuery([propiedad.direccion, propiedad.colonia, propiedad.ciudad, propiedad.estado, "México"]);
 
   type Carac = { label: string; value: number; icon: JSX.Element };
   const caracteristicas: Carac[] = [
@@ -42,7 +52,7 @@ export default async function PropiedadPage({ params }: { params: Promise<{ id: 
 
       {/* Volver */}
       <Link href="/#propiedades"
-        className="inline-flex items-center gap-2 text-[13px] text-gray-400 hover:text-[#1a1a2e] transition-colors mb-8">
+        className="inline-flex items-center gap-2 text-[13px] text-gray-400 hover:text-[#1B2A45] transition-colors mb-8">
         <svg viewBox="0 0 24 24" className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="1.5">
           <polyline points="15 18 9 12 15 6" />
         </svg>
@@ -61,12 +71,11 @@ export default async function PropiedadPage({ params }: { params: Promise<{ id: 
 
           {/* Badges */}
           <div className="flex items-center gap-2 flex-wrap">
-            <span className={`text-[10px] font-bold tracking-[0.18em] uppercase px-3 py-1 rounded-full
-              ${propiedad.tipo_operacion === "renta" ? "bg-[#4FA8D5] text-white" : "bg-[#1a1a2e] text-white"}`}>
-              {propiedad.tipo_operacion}
+            <span className={`font-display text-[10px] font-bold tracking-[0.18em] uppercase px-3 py-1 rounded-sm ${categoriaBadgeCls(propiedad.tipo_operacion)}`}>
+              {categoriaLabel(propiedad.tipo_operacion)}
             </span>
             {propiedad.tipo_propiedad && (
-              <span className="text-[10px] font-semibold tracking-wide uppercase px-3 py-1 rounded-full bg-gray-100 text-gray-500 capitalize">
+              <span className="text-[10px] font-semibold tracking-wide uppercase px-3 py-1 rounded-sm bg-[#F3F1EC] text-gray-500 capitalize">
                 {propiedad.tipo_propiedad}
               </span>
             )}
@@ -74,7 +83,7 @@ export default async function PropiedadPage({ params }: { params: Promise<{ id: 
 
           {/* Título, ubicación y precio */}
           <div className="flex flex-col gap-1.5">
-            <h1 className="text-2xl sm:text-[1.65rem] font-bold text-[#1a1a2e] leading-snug">
+            <h1 className="text-2xl sm:text-[1.65rem] font-bold text-[#1B2A45] leading-snug">
               {propiedad.titulo}
             </h1>
             {ubicacion && (
@@ -83,7 +92,7 @@ export default async function PropiedadPage({ params }: { params: Promise<{ id: 
                 {ubicacion}
               </p>
             )}
-            <p className="text-[2rem] font-bold text-[#4FA8D5] leading-tight mt-1">{precio}</p>
+            <p className="text-[2rem] font-bold text-[#B08D57] leading-tight mt-1">{precio}</p>
           </div>
 
           {/* Características */}
@@ -92,9 +101,9 @@ export default async function PropiedadPage({ params }: { params: Promise<{ id: 
               {caracteristicas.map((c) => (
                 <div key={c.label}
                   className="flex items-center gap-2.5 bg-gray-50 rounded-xl px-3 py-2.5">
-                  <span className="text-[#4FA8D5]">{c.icon}</span>
+                  <span className="text-[#B08D57]">{c.icon}</span>
                   <div>
-                    <div className="text-[15px] font-bold text-[#1a1a2e] leading-none">{c.value}</div>
+                    <div className="text-[15px] font-bold text-[#1B2A45] leading-none">{c.value}</div>
                     <div className="text-[11px] text-gray-400 mt-0.5">{c.label}</div>
                   </div>
                 </div>
@@ -106,14 +115,14 @@ export default async function PropiedadPage({ params }: { params: Promise<{ id: 
           <DescripcionExpandible texto={propiedad.descripcion} />
 
           {/* CTAs */}
-          <div className="border-t border-gray-100 pt-5 flex flex-col gap-2.5">
+          <div className="border-t border-[#E4E0D6] pt-5 flex flex-col gap-2.5">
             <a href={waUrl} target="_blank" rel="noopener noreferrer"
-              className="flex items-center justify-center gap-2 bg-[#25D366] hover:bg-[#1ebe5d] text-white font-semibold py-3.5 rounded-full text-sm transition-colors">
+              className="flex items-center justify-center gap-2 bg-[#25D366] hover:bg-[#1ebe5d] text-white font-semibold py-3.5 rounded-sm text-sm transition-colors">
               <WhatsAppIcon />
               Consultar por WhatsApp
             </a>
             <a href={FACEBOOK} target="_blank" rel="noopener noreferrer"
-              className="flex items-center justify-center gap-2 border border-[#1877F2]/30 text-[#1877F2] hover:bg-[#1877F2] hover:text-white font-semibold py-3 rounded-full text-sm transition-all">
+              className="flex items-center justify-center gap-2 border border-[#1877F2]/30 text-[#1877F2] hover:bg-[#1877F2] hover:text-white font-semibold py-3 rounded-sm text-sm transition-all">
               <FacebookIcon />
               Ver en Facebook
             </a>
@@ -124,6 +133,37 @@ export default async function PropiedadPage({ params }: { params: Promise<{ id: 
 
         </div>
       </div>
+
+      {/* Mapa de la zona */}
+      {consultaMapa && (
+        <section className="mt-14">
+          <div className="flex items-baseline justify-between mb-4">
+            <h2 className="font-display text-[11px] font-bold uppercase tracking-[0.2em] text-[#B08D57]">
+              Ubicación
+            </h2>
+            <a
+              href={mapaLinkUrl(consultaMapa)}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-[12px] font-semibold text-[#1B2A45] hover:text-[#B08D57] transition-colors"
+            >
+              Abrir en Google Maps ↗
+            </a>
+          </div>
+          <div className="rounded-sm overflow-hidden border border-[#E4E0D6] bg-[#F3F1EC]">
+            <iframe
+              src={mapaEmbedUrl(consultaMapa)}
+              title={`Mapa de ${ubicacion || propiedad.titulo}`}
+              loading="lazy"
+              referrerPolicy="no-referrer-when-downgrade"
+              className="w-full h-[320px] sm:h-[400px] border-0"
+            />
+          </div>
+          <p className="text-[11px] text-gray-400 mt-2">
+            Ubicación aproximada de la zona. La dirección exacta se comparte al agendar la visita.
+          </p>
+        </section>
+      )}
     </main>
   );
 }

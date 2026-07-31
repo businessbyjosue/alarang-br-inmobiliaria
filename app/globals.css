@@ -1,25 +1,50 @@
 @import "tailwindcss";
 
+/* Sistema visual Alarang B.R. — ver supabase/../docs de identidad
+   Azul marino (primario) · Bronce (acento) · Hueso (neutro claro) · Carbón */
 :root {
-  --brand-blue: #4FA8D5;
-  --brand-blue-dark: #2E86C1;
-  --brand-gray: #F4F6F8;
+  --navy: #1B2A45;
+  --navy-deep: #141E33;
+  --bronze: #B08D57;
+  --bronze-dark: #96784A;
+  --bone: #F3F1EC;
+  --carbon: #20242C;
+
+  /* Alias heredados: mantienen compatibilidad con clases brand-* previas */
+  --brand-blue: var(--bronze);
+  --brand-blue-dark: var(--bronze-dark);
+  --brand-gray: var(--bone);
   --brand-gray-dark: #6B7280;
+
   --background: #ffffff;
-  --foreground: #1a1a2e;
+  --foreground: var(--navy);
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-navy: var(--navy);
+  --color-navy-deep: var(--navy-deep);
+  --color-bronze: var(--bronze);
+  --color-bronze-dark: var(--bronze-dark);
+  --color-bone: var(--bone);
+  --color-carbon: var(--carbon);
   --color-brand-blue: var(--brand-blue);
   --color-brand-blue-dark: var(--brand-blue-dark);
   --color-brand-gray: var(--brand-gray);
+
+  --font-display: var(--font-montserrat), 'Montserrat', sans-serif;
+  --font-sans: var(--font-inter), 'Inter', sans-serif;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: 'Inter', Arial, Helvetica, sans-serif;
   -webkit-font-smoothing: antialiased;
+}
+
+/* Títulos y wordmark en Montserrat, cuerpo en Inter */
+h1, h2, h3, .font-display {
+  font-family: var(--font-montserrat), 'Montserrat', sans-serif;
+  letter-spacing: -0.01em;
 }

@@ -30,7 +30,7 @@ export default function Toast({ mensaje, tipo = "exito", onClose }: ToastProps) 
     <div
       className={`fixed bottom-6 right-6 z-50 flex items-center gap-3 px-5 py-3.5 rounded-2xl shadow-xl text-sm font-medium transition-all duration-300
         ${visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-3"}
-        ${esExito ? "bg-[#1a1a2e] text-white" : "bg-red-600 text-white"}`}
+        ${esExito ? "bg-[#1B2A45] text-white" : "bg-red-600 text-white"}`}
     >
       {esExito ? <CheckIcon /> : <XCircleIcon />}
       {mensaje}
@@ -40,7 +40,7 @@ export default function Toast({ mensaje, tipo = "exito", onClose }: ToastProps) 
 
 function CheckIcon() {
   return (
-    <svg viewBox="0 0 24 24" className="w-4 h-4 shrink-0 text-[#4FA8D5]" fill="none" stroke="currentColor" strokeWidth="2.5">
+    <svg viewBox="0 0 24 24" className="w-4 h-4 shrink-0 text-[#B08D57]" fill="none" stroke="currentColor" strokeWidth="2.5">
       <polyline points="20 6 9 17 4 12" />
     </svg>
   );

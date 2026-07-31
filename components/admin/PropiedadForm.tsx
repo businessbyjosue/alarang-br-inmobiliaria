@@ -1,7 +1,7 @@
 "use client";
 
 import { useTransition, useState, useCallback } from "react";
-import { Propiedad } from "@/lib/types";
+import { Propiedad, CATEGORIAS } from "@/lib/types";
 import Toast from "./Toast";
 
 interface Props {
@@ -65,10 +65,11 @@ export default function PropiedadForm({ propiedad, action, submitLabel }: Props)
           </div>
 
           <div>
-            <Label>Operación</Label>
-            <select name="tipo_operacion" defaultValue={propiedad?.tipo_operacion ?? "renta"} className={selectCls}>
-              <option value="renta">Renta</option>
-              <option value="venta">Venta</option>
+            <Label>Categoría</Label>
+            <select name="tipo_operacion" defaultValue={propiedad?.tipo_operacion ?? "venta"} className={selectCls}>
+              {CATEGORIAS.map((c) => (
+                <option key={c.value} value={c.value}>{c.label}</option>
+              ))}
             </select>
           </div>
 
@@ -141,7 +142,7 @@ export default function PropiedadForm({ propiedad, action, submitLabel }: Props)
             defaultValue={propiedad?.descripcion}
             required
             rows={5}
-            className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#4FA8D5] resize-none"
+            className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#B08D57] resize-none"
           />
         </div>
 
@@ -152,7 +153,7 @@ export default function PropiedadForm({ propiedad, action, submitLabel }: Props)
             id="publicado"
             name="publicado"
             defaultChecked={propiedad?.publicado ?? true}
-            className="w-4 h-4 accent-[#4FA8D5]"
+            className="w-4 h-4 accent-[#B08D57]"
           />
           <label htmlFor="publicado" className="text-sm font-medium text-gray-700">
             Publicar propiedad (visible en el sitio)
@@ -177,7 +178,7 @@ export default function PropiedadForm({ propiedad, action, submitLabel }: Props)
             className={`inline-flex items-center gap-2 font-semibold px-6 py-2.5 rounded-full text-sm transition-all duration-200 disabled:opacity-60
               ${guardado
                 ? "bg-green-500 text-white"
-                : "bg-[#4FA8D5] hover:bg-[#3a95c2] text-white"}`}
+                : "bg-[#B08D57] hover:bg-[#96784A] text-white"}`}
           >
             {pending && <SpinnerIcon />}
             {pending ? "Guardando…" : guardado ? "✓ Guardado" : submitLabel}
@@ -196,7 +197,7 @@ export default function PropiedadForm({ propiedad, action, submitLabel }: Props)
 /* ── Sub-componentes ── */
 
 const selectCls =
-  "w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#4FA8D5] bg-white";
+  "w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#B08D57] bg-white";
 
 function SectionTitle({ children }: { children: React.ReactNode }) {
   return (
@@ -214,7 +215,7 @@ function Input({ ...props }: React.InputHTMLAttributes<HTMLInputElement>) {
   return (
     <input
       {...props}
-      className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#4FA8D5]"
+      className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#B08D57]"
     />
   );
 }

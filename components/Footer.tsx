@@ -1,9 +1,12 @@
+import Link from "next/link";
+import Logo from "./Logo";
+
 const WHATSAPP = "https://wa.me/527712026857";
 const FACEBOOK = "https://www.facebook.com/share/1B6n82QjaY/?mibextid=wwXIfr";
 
 export default function Footer() {
   return (
-    <footer className="bg-[#0e1520] text-white">
+    <footer className="bg-[#141E33] text-white">
       {/* CTA strip */}
       <div className="border-b border-white/8">
         <div className="max-w-6xl mx-auto px-5 sm:px-8 py-10 flex flex-col sm:flex-row items-center justify-between gap-5">
@@ -15,7 +18,7 @@ export default function Footer() {
             href={WHATSAPP}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center gap-2 text-[13px] font-semibold bg-[#25D366] hover:bg-[#1ebe5d] text-white px-6 py-2.5 rounded-full transition-colors shrink-0"
+            className="flex items-center gap-2 text-[13px] font-semibold bg-[#25D366] hover:bg-[#1ebe5d] text-white px-6 py-3 rounded-sm transition-colors shrink-0"
           >
             <WhatsAppIcon />
             Contactar ahora
@@ -28,10 +31,8 @@ export default function Footer() {
 
         {/* Brand */}
         <div className="sm:col-span-2">
-          <div className="flex items-center gap-2 mb-4">
-            <span className="text-[14px] font-bold tracking-[0.15em] text-white uppercase">Alarang</span>
-            <span className="w-px h-3.5 bg-[#4FA8D5]/40" />
-            <span className="text-[10px] font-semibold tracking-[0.3em] text-[#4FA8D5] uppercase">B.R.</span>
+          <div className="mb-4">
+            <Logo light />
           </div>
           <p className="text-[13px] text-gray-500 leading-relaxed max-w-sm">
             Asesoría personalizada en renta y venta de propiedades en México.
@@ -49,15 +50,20 @@ export default function Footer() {
               WhatsApp
             </a>
             <a href={FACEBOOK} target="_blank" rel="noopener noreferrer"
-              className="flex items-center gap-2.5 text-[13px] text-gray-400 hover:text-[#4FA8D5] transition-colors group">
-              <FacebookIcon className="text-gray-600 group-hover:text-[#4FA8D5]" />
+              className="flex items-center gap-2.5 text-[13px] text-gray-400 hover:text-[#B08D57] transition-colors group">
+              <FacebookIcon className="text-gray-600 group-hover:text-[#B08D57]" />
               Facebook
             </a>
-            <a href="/#propiedades"
+            <Link href="/#propiedades"
               className="flex items-center gap-2.5 text-[13px] text-gray-400 hover:text-white transition-colors">
               <GridIcon />
               Ver propiedades
-            </a>
+            </Link>
+            <Link href="/vende-tu-propiedad"
+              className="flex items-center gap-2.5 text-[13px] text-gray-400 hover:text-[#B08D57] transition-colors">
+              <TagIcon />
+              Vende tu propiedad
+            </Link>
           </div>
         </div>
       </div>
@@ -91,6 +97,15 @@ function FacebookIcon({ className = "" }: { className?: string }) {
   return (
     <svg viewBox="0 0 24 24" className={`w-3.5 h-3.5 fill-current shrink-0 ${className}`}>
       <path d="M24 12.073C24 5.405 18.627 0 12 0S0 5.405 0 12.073C0 18.1 4.388 23.094 10.125 24v-8.437H7.078v-3.49h3.047V9.41c0-3.025 1.792-4.697 4.533-4.697 1.312 0 2.686.236 2.686.236v2.97h-1.513c-1.491 0-1.956.93-1.956 1.887v2.267h3.328l-.532 3.49h-2.796V24C19.612 23.094 24 18.1 24 12.073z"/>
+    </svg>
+  );
+}
+
+function TagIcon() {
+  return (
+    <svg viewBox="0 0 24 24" className="w-3.5 h-3.5 shrink-0 text-gray-600" fill="none" stroke="currentColor" strokeWidth="1.8">
+      <path d="M20.6 13.4l-7.2 7.2a2 2 0 01-2.8 0l-7.2-7.2A2 2 0 013 12V4a1 1 0 011-1h8a2 2 0 011.4.6l7.2 7.2a2 2 0 010 2.6z" />
+      <circle cx="7.5" cy="7.5" r="1.2" />
     </svg>
   );
 }

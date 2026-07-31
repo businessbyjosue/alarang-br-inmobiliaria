@@ -16,15 +16,19 @@ export default function AdminNav() {
   }
 
   return (
-    <header className="h-12 bg-[#1a1a2e] flex items-center justify-between px-5 sm:px-8 shrink-0">
+    <header className="h-12 bg-[#1B2A45] flex items-center justify-between px-5 sm:px-8 shrink-0">
       <div className="flex items-center gap-6">
         <Link href="/admin" className="flex items-baseline gap-2">
           <span className="text-[13px] font-bold tracking-widest text-white uppercase">Alarang</span>
-          <span className="text-[9px] font-medium tracking-[0.2em] text-[#4FA8D5] uppercase">Admin</span>
+          <span className="text-[9px] font-medium tracking-[0.2em] text-[#B08D57] uppercase">Admin</span>
         </Link>
         <Link href="/admin/propiedades/nueva"
           className="text-[12px] font-medium text-white/60 hover:text-white transition-colors">
           + Nueva propiedad
+        </Link>
+        <Link href="/admin/solicitudes"
+          className="text-[12px] font-medium text-white/60 hover:text-white transition-colors">
+          Solicitudes
         </Link>
       </div>
       <div className="flex items-center gap-4">

@@ -1,4 +1,7 @@
+import { Suspense } from "react";
+import Link from "next/link";
 import Hero from "@/components/Hero";
+import Filtros from "@/components/Filtros";
 import PropiedadCard from "@/components/PropiedadCard";
 import { createServerClient } from "@/lib/supabase-server";
 import { Propiedad } from "@/lib/types";
@@ -9,14 +12,14 @@ function EmptyState() {
   return (
     <div className="py-24 flex flex-col items-center gap-5 text-center">
       {/* Ícono ilustrativo */}
-      <div className="w-16 h-16 rounded-2xl bg-[#4FA8D5]/8 flex items-center justify-center">
-        <svg viewBox="0 0 24 24" className="w-8 h-8 text-[#4FA8D5]/50" fill="none" stroke="currentColor" strokeWidth="1.3">
+      <div className="w-16 h-16 rounded-2xl bg-[#B08D57]/8 flex items-center justify-center">
+        <svg viewBox="0 0 24 24" className="w-8 h-8 text-[#B08D57]/50" fill="none" stroke="currentColor" strokeWidth="1.3">
           <path d="M3 12L12 3l9 9" />
           <path d="M5 10v9a1 1 0 001 1h4v-5h4v5h4a1 1 0 001-1v-9" />
         </svg>
       </div>
       <div>
-        <p className="text-[15px] font-semibold text-[#1a1a2e] mb-1">Pronto habrá propiedades disponibles</p>
+        <p className="text-[15px] font-semibold text-[#1B2A45] mb-1">Pronto habrá propiedades disponibles</p>
         <p className="text-[13px] text-gray-400 max-w-xs">
           Estamos preparando el inventario. Mientras tanto, contáctanos directamente.
         </p>
@@ -38,7 +41,15 @@ function EmptyState() {
 
 export const revalidate = 60;
 
-export default async function HomePage() {
+type Params = { categoria?: string; zona?: string; min?: string; max?: string };
+
+export default async function HomePage({
+  searchParams,
+}: {
+  searchParams: Promise<Params>;
+}) {
+  const { categoria, zona, min, max } = await searchParams;
+
   const sb = createServerClient();
   const { data } = await sb
     .from("propiedades")
@@ -46,30 +57,106 @@ export default async function HomePage() {
     .eq("publicado", true)
     .order("created_at", { ascending: false });
 
-  const propiedades = (data ?? []) as Propiedad[];
+  const todas = (data ?? []) as Propiedad[];
+
+  // Zonas disponibles para el selector (colonia si existe, si no la ciudad).
+  const zonas = [...new Set(todas.map((p) => p.colonia || p.ciudad).filter(Boolean))].sort();
+
+  const minNum = min ? Number(min) : null;
+  const maxNum = max ? Number(max) : null;
+
+  const propiedades = todas.filter((p) => {
+    if (categoria && p.tipo_operacion !== categoria) return false;
+    if (zona && (p.colonia || p.ciudad) !== zona) return false;
+    if (minNum != null && !Number.isNaN(minNum) && p.precio < minNum) return false;
+    if (maxNum != null && !Number.isNaN(maxNum) && p.precio > maxNum) return false;
+    return true;
+  });
+
+  const hayFiltros = Boolean(categoria || zona || min || max);
 
   return (
     <main className="flex-1">
       <Hero />
 
       <section id="propiedades" className="max-w-6xl mx-auto px-5 sm:px-8 py-20">
-        <div className="mb-10">
-          <p className="text-[11px] font-semibold tracking-[0.25em] text-[#4FA8D5] uppercase mb-2">
+        <div className="mb-8">
+          <p className="font-display text-[11px] font-bold tracking-[0.25em] text-[#B08D57] uppercase mb-2">
             Disponibles ahora
           </p>
-          <h2 className="text-2xl sm:text-3xl font-bold text-[#1a1a2e]">Propiedades</h2>
+          <h2 className="font-display text-2xl sm:text-3xl font-extrabold text-[#1B2A45]">Propiedades</h2>
         </div>
 
+        {todas.length > 0 && (
+          <Suspense fallback={null}>
+            <Filtros zonas={zonas as string[]} />
+          </Suspense>
+        )}
+
         {propiedades.length > 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {propiedades.map((p) => (
-              <PropiedadCard key={p.id} p={p} />
-            ))}
-          </div>
+          <>
+            <p className="text-[12px] text-gray-500 mb-5">
+              {propiedades.length} {propiedades.length === 1 ? "propiedad" : "propiedades"}
+              {hayFiltros ? " con los filtros aplicados" : " disponibles"}
+            </p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {propiedades.map((p) => (
+                <PropiedadCard key={p.id} p={p} />
+              ))}
+            </div>
+          </>
+        ) : hayFiltros ? (
+          <SinResultados />
         ) : (
           <EmptyState />
         )}
       </section>
+
+      <VendeTuPropiedadCTA />
     </main>
+  );
+}
+
+function SinResultados() {
+  return (
+    <div className="py-20 text-center">
+      <p className="text-[15px] font-semibold text-[#1B2A45] mb-1">
+        No hay propiedades con esos filtros
+      </p>
+      <p className="text-[13px] text-gray-500 mb-5">Prueba ampliando el rango de precio o cambiando la zona.</p>
+      <Link
+        href="/#propiedades"
+        className="inline-block font-display text-[12px] font-bold uppercase tracking-[0.12em] bg-[#1B2A45] text-white px-6 py-3 rounded-sm hover:bg-[#B08D57] transition-colors"
+      >
+        Ver todas
+      </Link>
+    </div>
+  );
+}
+
+function VendeTuPropiedadCTA() {
+  return (
+    <section className="bg-[#1B2A45]">
+      <div className="max-w-6xl mx-auto px-5 sm:px-8 py-16 flex flex-col sm:flex-row items-center justify-between gap-6">
+        <div>
+          <p className="font-display text-[11px] font-bold tracking-[0.25em] text-[#B08D57] uppercase mb-2">
+            ¿Tienes una propiedad?
+          </p>
+          <h2 className="font-display text-2xl sm:text-3xl font-extrabold text-white mb-2">
+            Publícala con nosotros
+          </h2>
+          <p className="text-[14px] text-gray-400 max-w-md leading-relaxed">
+            Cuéntanos los datos de tu casa, departamento o terreno y te contactamos
+            para promocionarla al mejor precio.
+          </p>
+        </div>
+        <Link
+          href="/vende-tu-propiedad"
+          className="shrink-0 font-display text-[12px] font-bold uppercase tracking-[0.12em] bg-[#B08D57] hover:bg-[#96784A] text-white px-8 py-4 rounded-sm transition-colors"
+        >
+          Vende tu propiedad
+        </Link>
+      </div>
+    </section>
   );
 }

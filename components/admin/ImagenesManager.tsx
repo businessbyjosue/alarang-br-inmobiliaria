@@ -101,7 +101,7 @@ export default function ImagenesManager({
           id="upload-img"
         />
         <label htmlFor="upload-img"
-          className={`inline-flex items-center gap-2 cursor-pointer border-2 border-dashed border-gray-200 hover:border-[#4FA8D5] rounded-xl px-5 py-3 text-sm text-gray-500 hover:text-[#4FA8D5] transition-colors ${uploading ? "opacity-60 pointer-events-none" : ""}`}>
+          className={`inline-flex items-center gap-2 cursor-pointer border-2 border-dashed border-gray-200 hover:border-[#B08D57] rounded-xl px-5 py-3 text-sm text-gray-500 hover:text-[#B08D57] transition-colors ${uploading ? "opacity-60 pointer-events-none" : ""}`}>
           <UploadIcon />
           {uploading ? "Subiendo..." : "Subir imágenes"}
         </label>
@@ -125,7 +125,7 @@ export default function ImagenesManager({
               {/* Portada badge */}
               <div className="flex-1 min-w-0">
                 {img.es_portada && (
-                  <span className="text-[10px] font-bold tracking-widest uppercase text-[#4FA8D5] bg-[#4FA8D5]/10 px-2 py-0.5 rounded-full">
+                  <span className="text-[10px] font-bold tracking-widest uppercase text-[#B08D57] bg-[#B08D57]/10 px-2 py-0.5 rounded-full">
                     Portada
                   </span>
                 )}
@@ -141,7 +141,7 @@ export default function ImagenesManager({
                 {/* Portada */}
                 {!img.es_portada && (
                   <button onClick={() => handlePortada(img)} disabled={pending}
-                    className="text-[11px] text-gray-400 hover:text-[#4FA8D5] px-2 py-1 rounded transition-colors disabled:opacity-50">
+                    className="text-[11px] text-gray-400 hover:text-[#B08D57] px-2 py-1 rounded transition-colors disabled:opacity-50">
                     Portada
                   </button>
                 )}
@@ -163,7 +163,7 @@ export default function ImagenesManager({
 function IconBtn({ children, ...props }: React.ButtonHTMLAttributes<HTMLButtonElement>) {
   return (
     <button {...props}
-      className="w-7 h-7 flex items-center justify-center text-[11px] text-gray-400 hover:text-[#1a1a2e] rounded disabled:opacity-30 transition-colors">
+      className="w-7 h-7 flex items-center justify-center text-[11px] text-gray-400 hover:text-[#1B2A45] rounded disabled:opacity-30 transition-colors">
       {children}
     </button>
   );
