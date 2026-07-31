@@ -97,13 +97,7 @@ export default function VenderForm() {
           </Campo>
 
           <Campo etiqueta="Precio deseado" ayuda="Si no lo tienes definido, déjalo vacío.">
-            <div className="flex gap-2">
-              <input name="precio_deseado" type="number" min="0" step="any" inputMode="numeric" placeholder="Ej. 1500000" className={inputCls} />
-              <select name="moneda" defaultValue="MXN" className={`${inputCls} w-24 shrink-0`}>
-                <option value="MXN">MXN</option>
-                <option value="USD">USD</option>
-              </select>
-            </div>
+            <CampoPrecio />
           </Campo>
 
           <Campo etiqueta="Ubicación" requerido ayuda="Colonia y ciudad.">
@@ -180,6 +174,64 @@ export default function VenderForm() {
 
 const inputCls =
   "w-full bg-white border border-[#E4E0D6] rounded-sm px-3.5 py-3 text-sm text-[#1B2A45] placeholder:text-gray-400 focus:outline-none focus:border-[#B08D57] focus:ring-1 focus:ring-[#B08D57] transition-colors";
+
+/* Precio + moneda como un solo control.
+   Ojo: no reutilizamos inputCls aquí porque su `w-full` gana en el CSS
+   compilado sobre cualquier ancho que se le añada después y colapsa al
+   hermano dentro del flex. Los hijos van sin borde: lo pone el contenedor.
+
+   El input es de texto (no `number`) para evitar el spinner y el scroll
+   accidental del móvil; se sanea a dígitos y un punto decimal, y el valor
+   limpio viaja en un hidden con el nombre que espera la Server Action. */
+function CampoPrecio() {
+  const [valor, setValor] = useState("");
+  const [enfocado, setEnfocado] = useState(false);
+
+  return (
+    <div className="flex items-stretch bg-white border border-[#E4E0D6] rounded-sm transition-colors focus-within:border-[#B08D57] focus-within:ring-1 focus-within:ring-[#B08D57]">
+      <span className="flex items-center pl-3.5 text-sm text-gray-400 select-none">$</span>
+
+      <input
+        type="text"
+        inputMode="decimal"
+        autoComplete="off"
+        aria-label="Precio deseado"
+        placeholder="1,500,000"
+        value={enfocado ? valor : formatearMonto(valor)}
+        onChange={(e) => setValor(limpiarMonto(e.target.value))}
+        onFocus={() => setEnfocado(true)}
+        onBlur={() => setEnfocado(false)}
+        className="flex-1 min-w-0 bg-transparent px-2 py-3 text-sm text-[#1B2A45] placeholder:text-gray-400 focus:outline-none"
+      />
+
+      {/* Valor que se envía: siempre numérico plano, sin separadores. */}
+      <input type="hidden" name="precio_deseado" value={valor} />
+
+      <select
+        name="moneda"
+        defaultValue="MXN"
+        aria-label="Moneda"
+        className="shrink-0 bg-transparent border-l border-[#E4E0D6] py-3 pl-2.5 pr-2 text-sm font-medium text-gray-600 focus:outline-none cursor-pointer"
+      >
+        <option value="MXN">MXN</option>
+        <option value="USD">USD</option>
+      </select>
+    </div>
+  );
+}
+
+// Deja solo dígitos y un único punto decimal.
+function limpiarMonto(v: string): string {
+  return v.replace(/[^\d.]/g, "").replace(/(\..*)\./g, "$1");
+}
+
+// Agrupa los miles para leerlo mejor cuando el campo no está enfocado.
+function formatearMonto(v: string): string {
+  if (v === "") return "";
+  const [entero, decimales] = v.split(".");
+  const enteroFmt = entero === "" ? "" : Number(entero).toLocaleString("es-MX");
+  return decimales === undefined ? enteroFmt : `${enteroFmt}.${decimales}`;
+}
 
 function Seccion({ children }: { children: React.ReactNode }) {
   return (
