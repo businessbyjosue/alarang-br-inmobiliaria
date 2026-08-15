@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { verifySession } from "@/lib/auth";
-import { createServerClient } from "@/lib/supabase-server";
+import { createAdminClient } from "@/lib/supabase-server";
 import { Propiedad } from "@/lib/types";
 import { formatPrecio, categoriaLabel } from "@/lib/utils";
 import TogglePublicado from "@/components/admin/TogglePublicado";
@@ -11,7 +11,10 @@ export default async function AdminPage() {
   const ok = await verifySession();
   if (!ok) redirect("/admin/login");
 
-  const sb = createServerClient();
+  // Cliente admin: el panel debe ver también las propiedades sin publicar, que
+  // RLS oculta al cliente anon (solo expone `publicado = true`). La sesión ya
+  // se verificó arriba.
+  const sb = createAdminClient();
   const { data: propiedades } = await sb
     .from("propiedades")
     .select("*")

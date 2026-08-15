@@ -1,7 +1,7 @@
 import { redirect, notFound } from "next/navigation";
 import Link from "next/link";
 import { verifySession } from "@/lib/auth";
-import { createServerClient } from "@/lib/supabase-server";
+import { createAdminClient } from "@/lib/supabase-server";
 import { actualizarPropiedad } from "@/app/admin/actions";
 import PropiedadForm from "@/components/admin/PropiedadForm";
 import ImagenesManager from "@/components/admin/ImagenesManager";
@@ -16,7 +16,9 @@ export default async function EditarPropiedadPage({
   if (!ok) redirect("/admin/login");
 
   const { id } = await params;
-  const sb = createServerClient();
+  // Cliente admin: hay que poder editar propiedades sin publicar, que RLS
+  // oculta al cliente anon. La sesión ya se verificó arriba.
+  const sb = createAdminClient();
 
   const [{ data: prop }, { data: imgs }] = await Promise.all([
     sb.from("propiedades").select("*").eq("id", id).single(),
