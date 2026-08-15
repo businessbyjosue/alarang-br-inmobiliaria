@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { createAdminClient } from "@/lib/supabase-server";
 import { verifySession } from "@/lib/auth";
 import { BUCKET } from "@/lib/utils";
+import { normalizarCodigo, esCodigoValido, siguienteCodigo } from "@/lib/codigo";
 
 // ── Guard de seguridad ─────────────────────────────────────
 // Como el cliente admin usa service_role (bypassa RLS), TODA action
@@ -14,27 +15,50 @@ async function requireAdmin() {
   if (!ok) throw new Error("No autorizado");
 }
 
-// Traduce errores de Postgres a mensajes claros
-function mensajeError(error: { code?: string; message: string }): string {
+type ErrorPg = { code?: string; message: string };
+
+// Colisión de clave única sobre `codigo`.
+function esColisionCodigo(error: ErrorPg): boolean {
+  return error.code === "23505" && error.message.includes("codigo");
+}
+
+// La base rechazó el insert por `codigo` nulo: la migración 002 (DEFAULT con
+// secuencia) todavía no está aplicada en este entorno.
+function faltaCodigo(error: ErrorPg): boolean {
+  return error.code === "23502" && error.message.includes('"codigo"');
+}
+
+// Traduce errores de Postgres a mensajes claros. El detalle crudo se registra
+// en el servidor; a la interfaz solo sale un mensaje seguro.
+function mensajeError(error: ErrorPg, contexto: string): string {
+  console.error(`[admin/${contexto}] Supabase ${error.code ?? "sin-codigo"}: ${error.message}`);
+
   if (error.code === "23505") {
-    if (error.message.includes("codigo")) return "Ya existe una propiedad con ese código. Usa uno distinto.";
+    if (esColisionCodigo(error)) return "Ya existe una propiedad con ese código. Usa uno distinto.";
     return "Ya existe un registro con ese valor único.";
   }
-  return error.message;
+  if (error.code === "23502") {
+    return "Faltan datos obligatorios de la propiedad. Revisa el formulario.";
+  }
+  return "No se pudo guardar la propiedad. Inténtalo de nuevo.";
 }
 
 // ── Helpers ────────────────────────────────────────────────
+// Un 0 llega como "0" (no como ""), así que se conserva como 0 y no se
+// convierte en null: "0 estacionamientos" es un dato válido.
 function numOrNull(v: FormDataEntryValue | null): number | null {
   if (v === null || v === "") return null;
-  return Number(v);
+  const n = Number(v);
+  return Number.isFinite(n) ? n : null;
 }
 function strOrNull(v: FormDataEntryValue | null): string | null {
   if (v === null || v === "") return null;
   return String(v);
 }
+// `codigo` queda fuera a propósito: crear y editar lo tratan distinto
+// (al crear se genera si falta; al editar se conserva el existente).
 function camposDesdeForm(fd: FormData) {
   return {
-    codigo: strOrNull(fd.get("codigo")),
     titulo: String(fd.get("titulo")),
     descripcion: String(fd.get("descripcion")),
     tipo_operacion: String(fd.get("tipo_operacion")),
@@ -53,22 +77,106 @@ function camposDesdeForm(fd: FormData) {
   };
 }
 
+type Campos = ReturnType<typeof camposDesdeForm>;
+
+// Campos NOT NULL de la tabla `propiedades`, con su etiqueta en el formulario.
+const OBLIGATORIOS: [keyof Campos, string][] = [
+  ["titulo", "el título"],
+  ["tipo_operacion", "la categoría"],
+  ["tipo_propiedad", "el tipo de propiedad"],
+  ["moneda", "la moneda"],
+];
+
+// Devuelve un mensaje para el administrador, o null si los datos sirven.
+function validarCampos(campos: Campos): string | null {
+  for (const [campo, etiqueta] of OBLIGATORIOS) {
+    if (!campos[campo]) return `Falta ${etiqueta}.`;
+  }
+  if (!Number.isFinite(campos.precio)) return "El precio debe ser un número válido.";
+  if (campos.precio < 0) return "El precio no puede ser negativo.";
+  return null;
+}
+
 // ── Propiedad ──────────────────────────────────────────────
+
+const MAX_INTENTOS_CODIGO = 5;
+
+type FilaNueva = Campos & { codigo?: string };
+type Resultado = { id: string; error: null } | { id: null; error: ErrorPg };
+
+// Inserta y devuelve el id, o el error de Postgres si falló.
+async function insertar(
+  sb: ReturnType<typeof createAdminClient>,
+  fila: FilaNueva
+): Promise<Resultado> {
+  const { data, error } = await sb.from("propiedades").insert(fila).select("id").single();
+  if (error) return { id: null, error };
+  return { id: data.id as string, error: null };
+}
+
+// Respaldo para entornos sin la migración 002: genera el código desde el
+// servidor a partir del mayor existente y reintenta si otra alta se adelantó.
+// El UNIQUE de `codigo` es lo que impide duplicados; el reintento solo evita
+// que el administrador vea un error por una carrera.
+async function insertarGenerandoCodigo(
+  sb: ReturnType<typeof createAdminClient>,
+  campos: Campos
+): Promise<string> {
+  const { data, error } = await sb.from("propiedades").select("codigo");
+  if (error) {
+    console.error(`[admin/crear] No se pudieron leer los códigos existentes: ${error.message}`);
+    throw new Error("No se pudo generar el código de la propiedad. Inténtalo de nuevo.");
+  }
+  const usados = (data ?? []).map((fila) => fila.codigo);
+
+  for (let intento = 0; intento < MAX_INTENTOS_CODIGO; intento++) {
+    const codigo = siguienteCodigo(usados, intento);
+    // Red de seguridad: nunca se envía un código vacío o nulo al insert.
+    if (!esCodigoValido(codigo)) {
+      throw new Error("El código de la propiedad no puede quedar vacío.");
+    }
+
+    const res = await insertar(sb, { ...campos, codigo });
+    if (!res.error) return res.id;
+    if (!esColisionCodigo(res.error)) throw new Error(mensajeError(res.error, "crear"));
+  }
+
+  throw new Error("No se pudo generar un código disponible. Inténtalo de nuevo.");
+}
 
 export async function crearPropiedad(fd: FormData) {
   await requireAdmin();
   const sb = createAdminClient();
   const campos = camposDesdeForm(fd);
 
-  const { data, error } = await sb
-    .from("propiedades")
-    .insert(campos)
-    .select("id")
-    .single();
+  const invalido = validarCampos(campos);
+  if (invalido) throw new Error(invalido);
 
-  if (error) throw new Error(mensajeError(error));
+  const codigoManual = normalizarCodigo(fd.get("codigo"));
+  let id: string;
+
+  if (codigoManual !== null) {
+    // El administrador escribió un código: manda el suyo.
+    const res = await insertar(sb, { ...campos, codigo: codigoManual });
+    if (res.error) throw new Error(mensajeError(res.error, "crear"));
+    id = res.id;
+  } else {
+    // Sin código: se omite del insert para que lo asigne el DEFAULT de la base
+    // (secuencia, migración 002). Es atómico, así que dos altas simultáneas
+    // nunca reciben el mismo valor.
+    const res = await insertar(sb, campos);
+    if (!res.error) {
+      id = res.id;
+    } else if (faltaCodigo(res.error)) {
+      id = await insertarGenerandoCodigo(sb, campos);
+    } else {
+      throw new Error(mensajeError(res.error, "crear"));
+    }
+  }
+
+  revalidatePath("/");
   revalidatePath("/admin");
-  redirect(`/admin/propiedades/${data.id}/editar`);
+  redirect(`/admin/propiedades/${id}/editar`);
 }
 
 export async function actualizarPropiedad(id: string, fd: FormData) {
@@ -76,12 +184,19 @@ export async function actualizarPropiedad(id: string, fd: FormData) {
   const sb = createAdminClient();
   const campos = camposDesdeForm(fd);
 
+  const invalido = validarCampos(campos);
+  if (invalido) throw new Error(invalido);
+
+  // Si el campo llega vacío no se toca: la propiedad conserva su código actual.
+  const codigo = normalizarCodigo(fd.get("codigo"));
+  const cambios = codigo === null ? campos : { ...campos, codigo };
+
   const { error } = await sb
     .from("propiedades")
-    .update(campos)
+    .update(cambios)
     .eq("id", id);
 
-  if (error) throw new Error(mensajeError(error));
+  if (error) throw new Error(mensajeError(error, "actualizar"));
   revalidatePath("/");
   revalidatePath("/admin");
   revalidatePath(`/propiedades/${id}`);

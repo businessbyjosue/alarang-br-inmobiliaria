@@ -1,25 +1,33 @@
 -- Esquema real (referencia). Ejecutar en el SQL Editor de Supabase.
 
+-- La secuencia del código va antes de la tabla (ver migrations/002).
+create sequence if not exists propiedades_codigo_seq as bigint;
+
 create table propiedades (
   id              uuid primary key default gen_random_uuid(),
-  codigo          text,
+  -- NOT NULL + UNIQUE. La base asigna el código con la secuencia si el INSERT
+  -- no lo trae. Formato en uso: número de 5 dígitos.
+  codigo          text not null unique
+                  default lpad(nextval('propiedades_codigo_seq')::text, 5, '0'),
   titulo          text not null,
-  descripcion     text not null,
+  descripcion     text,
   tipo_operacion  text not null check (tipo_operacion in ('renta', 'venta', 'terreno')),
-  tipo_propiedad  text,
-  precio          numeric not null,
+  tipo_propiedad  text not null,
+  precio          numeric not null default 0,
   moneda          text not null default 'MXN',
-  ciudad          text not null,
+  ciudad          text,
   estado          text,
   colonia         text,
   direccion       text,
-  recamaras       int,
-  banos           numeric,
-  estacionamientos int,
+  recamaras       int default 0,
+  banos           numeric default 0,
+  estacionamientos int default 0,
   area_m2         numeric,
   publicado       boolean not null default true,
   created_at      timestamptz default now()
 );
+
+alter sequence propiedades_codigo_seq owned by propiedades.codigo;
 
 create table propiedad_imagenes (
   id            uuid primary key default gen_random_uuid(),

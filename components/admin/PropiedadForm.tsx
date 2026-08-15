@@ -48,8 +48,9 @@ export default function PropiedadForm({ propiedad, action, submitLabel }: Props)
           </div>
 
           <div>
-            <Label>Código (opcional)</Label>
-            <Input name="codigo" defaultValue={propiedad?.codigo ?? ""} placeholder="Ej. ALR-001" />
+            <Label>Código</Label>
+            <Input name="codigo" defaultValue={propiedad?.codigo ?? ""} placeholder="Ej. 43841" />
+            <p className="text-[11px] text-gray-400 mt-1">Si lo dejas vacío se genera automáticamente.</p>
           </div>
 
           <div>
