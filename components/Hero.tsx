@@ -33,9 +33,9 @@ export default function Hero() {
 
         {/* Headline editorial */}
         <h1 className="font-display text-[clamp(2.3rem,6vw,4rem)] font-light text-white leading-[1.12] tracking-tight mb-6">
-          Propiedades selectas en<br />
-          <em className="not-italic font-extrabold text-white">renta, venta</em>{" "}
-          <span className="text-[#B08D57]">y terrenos</span>
+          Propiedades selectas con<br />
+          <em className="not-italic font-extrabold text-white">renta</em>{" "}
+          <span className="text-[#B08D57]">y venta</span>
         </h1>
 
         <p className="text-gray-400 text-[15px] sm:text-base max-w-xl mx-auto mb-11 leading-relaxed font-light">
