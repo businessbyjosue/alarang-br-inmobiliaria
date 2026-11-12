@@ -29,17 +29,16 @@ export type ResultadoSolicitud = {
 export async function enviarSolicitud(fd: FormData): Promise<ResultadoSolicitud> {
   const nombre = texto(fd, "nombre");
   const telefono = texto(fd, "telefono");
+  // El formulario solo envía nombre, teléfono y tipo de propiedad.
+  // ubicacion, descripcion y tipo_operacion son NOT NULL en la tabla.
   const ubicacion = texto(fd, "ubicacion");
   const descripcion = texto(fd, "descripcion");
   const tipoPropiedad = texto(fd, "tipo_propiedad");
-  const tipoOperacion = texto(fd, "tipo_operacion") as TipoOperacion;
+  const tipoOperacion: TipoOperacion = "venta";
 
   // Validación mínima en servidor (el navegador ya valida con required).
-  if (!nombre || !telefono || !ubicacion || !descripcion || !tipoPropiedad) {
+  if (!nombre || !telefono || !tipoPropiedad) {
     return { ok: false, mensaje: "Faltan datos obligatorios. Revisa el formulario." };
-  }
-  if (!CATEGORIAS.some((c) => c.value === tipoOperacion)) {
-    return { ok: false, mensaje: "Selecciona una categoría válida." };
   }
 
   const solicitud = {

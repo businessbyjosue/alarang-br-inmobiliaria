@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { CATEGORIAS } from "@/lib/types";
 import { enviarSolicitud, ResultadoSolicitud } from "@/app/vende-tu-propiedad/actions";
 
 const WHATSAPP = "https://wa.me/527712026857";
@@ -65,11 +64,6 @@ export default function VenderForm() {
           <Campo etiqueta="Teléfono / WhatsApp" requerido>
             <input name="telefono" required type="tel" inputMode="tel" autoComplete="tel" placeholder="Ej. 771 202 6857" className={inputCls} />
           </Campo>
-          <div className="sm:col-span-2">
-            <Campo etiqueta="Correo electrónico" ayuda="Opcional — te enviamos la confirmación por aquí.">
-              <input name="email" type="email" autoComplete="email" placeholder="tucorreo@ejemplo.com" className={inputCls} />
-            </Campo>
-          </div>
         </div>
       </div>
 
@@ -86,62 +80,6 @@ export default function VenderForm() {
               <option value="oficina">Oficina</option>
               <option value="otro">Otro</option>
             </select>
-          </Campo>
-
-          <Campo etiqueta="Categoría" requerido>
-            <select name="tipo_operacion" required defaultValue="venta" className={inputCls}>
-              {CATEGORIAS.map((c) => (
-                <option key={c.value} value={c.value}>{c.label}</option>
-              ))}
-            </select>
-          </Campo>
-
-          <Campo etiqueta="Precio deseado" ayuda="Si no lo tienes definido, déjalo vacío.">
-            <CampoPrecio />
-          </Campo>
-
-          <Campo etiqueta="Ubicación" requerido ayuda="Colonia y ciudad.">
-            <input name="ubicacion" required placeholder="Ej. Centro, Pachuca, Hidalgo" className={inputCls} />
-          </Campo>
-        </div>
-      </div>
-
-      {/* Características */}
-      <div>
-        <Seccion>Características (opcional)</Seccion>
-        <div className="grid grid-cols-3 gap-4">
-          <Campo etiqueta="Recámaras">
-            <input name="recamaras" type="number" min="0" inputMode="numeric" placeholder="—" className={inputCls} />
-          </Campo>
-          <Campo etiqueta="Baños">
-            <input name="banos" type="number" min="0" step="any" inputMode="decimal" placeholder="—" className={inputCls} />
-          </Campo>
-          <Campo etiqueta="Metros²">
-            <input name="area_m2" type="number" min="0" step="any" inputMode="decimal" placeholder="—" className={inputCls} />
-          </Campo>
-        </div>
-      </div>
-
-      {/* Descripción */}
-      <div>
-        <Seccion>Cuéntanos más</Seccion>
-        <div className="flex flex-col gap-4">
-          <Campo etiqueta="Descripción breve" requerido>
-            <textarea
-              name="descripcion"
-              required
-              rows={4}
-              placeholder="Estado de la propiedad, servicios, antigüedad, por qué la vendes o rentas…"
-              className={`${inputCls} resize-none`}
-            />
-          </Campo>
-          <Campo etiqueta="Comentarios adicionales">
-            <textarea
-              name="comentarios"
-              rows={3}
-              placeholder="Horarios para contactarte, urgencia, documentos disponibles…"
-              className={`${inputCls} resize-none`}
-            />
           </Campo>
         </div>
       </div>
@@ -174,64 +112,6 @@ export default function VenderForm() {
 
 const inputCls =
   "w-full bg-white border border-[#E4E0D6] rounded-sm px-3.5 py-3 text-sm text-[#1B2A45] placeholder:text-gray-400 focus:outline-none focus:border-[#B08D57] focus:ring-1 focus:ring-[#B08D57] transition-colors";
-
-/* Precio + moneda como un solo control.
-   Ojo: no reutilizamos inputCls aquí porque su `w-full` gana en el CSS
-   compilado sobre cualquier ancho que se le añada después y colapsa al
-   hermano dentro del flex. Los hijos van sin borde: lo pone el contenedor.
-
-   El input es de texto (no `number`) para evitar el spinner y el scroll
-   accidental del móvil; se sanea a dígitos y un punto decimal, y el valor
-   limpio viaja en un hidden con el nombre que espera la Server Action. */
-function CampoPrecio() {
-  const [valor, setValor] = useState("");
-  const [enfocado, setEnfocado] = useState(false);
-
-  return (
-    <div className="flex items-stretch bg-white border border-[#E4E0D6] rounded-sm transition-colors focus-within:border-[#B08D57] focus-within:ring-1 focus-within:ring-[#B08D57]">
-      <span className="flex items-center pl-3.5 text-sm text-gray-400 select-none">$</span>
-
-      <input
-        type="text"
-        inputMode="decimal"
-        autoComplete="off"
-        aria-label="Precio deseado"
-        placeholder="1,500,000"
-        value={enfocado ? valor : formatearMonto(valor)}
-        onChange={(e) => setValor(limpiarMonto(e.target.value))}
-        onFocus={() => setEnfocado(true)}
-        onBlur={() => setEnfocado(false)}
-        className="flex-1 min-w-0 bg-transparent px-2 py-3 text-sm text-[#1B2A45] placeholder:text-gray-400 focus:outline-none"
-      />
-
-      {/* Valor que se envía: siempre numérico plano, sin separadores. */}
-      <input type="hidden" name="precio_deseado" value={valor} />
-
-      <select
-        name="moneda"
-        defaultValue="MXN"
-        aria-label="Moneda"
-        className="shrink-0 bg-transparent border-l border-[#E4E0D6] py-3 pl-2.5 pr-2 text-sm font-medium text-gray-600 focus:outline-none cursor-pointer"
-      >
-        <option value="MXN">MXN</option>
-        <option value="USD">USD</option>
-      </select>
-    </div>
-  );
-}
-
-// Deja solo dígitos y un único punto decimal.
-function limpiarMonto(v: string): string {
-  return v.replace(/[^\d.]/g, "").replace(/(\..*)\./g, "$1");
-}
-
-// Agrupa los miles para leerlo mejor cuando el campo no está enfocado.
-function formatearMonto(v: string): string {
-  if (v === "") return "";
-  const [entero, decimales] = v.split(".");
-  const enteroFmt = entero === "" ? "" : Number(entero).toLocaleString("es-MX");
-  return decimales === undefined ? enteroFmt : `${enteroFmt}.${decimales}`;
-}
 
 function Seccion({ children }: { children: React.ReactNode }) {
   return (

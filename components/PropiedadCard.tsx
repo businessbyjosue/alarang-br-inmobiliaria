@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { Propiedad } from "@/lib/types";
 import { formatPrecio, getPortada, buildWhatsAppUrl, categoriaLabel, categoriaBadgeCls } from "@/lib/utils";
+import CompartirBoton from "@/components/CompartirBoton";
 
 export default function PropiedadCard({ p }: { p: Propiedad }) {
   const portada = getPortada(p.propiedad_imagenes);
@@ -76,17 +77,20 @@ export default function PropiedadCard({ p }: { p: Propiedad }) {
         )}
 
         {/* Divisor */}
-        <div className="border-t border-[#E4E0D6] mt-auto pt-3 flex items-center justify-between">
+        <div className="border-t border-[#E4E0D6] mt-auto pt-3 flex flex-wrap items-center justify-between gap-2">
           <span className="font-display text-[17px] font-extrabold text-[#1B2A45] tracking-tight">{precio}</span>
-          <a
-            href={waUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center gap-1.5 text-[12px] font-semibold text-[#25D366] border border-[#25D366]/25 hover:bg-[#25D366] hover:text-white hover:border-[#25D366] px-3.5 py-1.5 rounded-sm transition-all duration-200"
-          >
-            <WhatsAppIcon />
-            WhatsApp
-          </a>
+          <div className="flex items-center gap-2">
+            <CompartirBoton id={p.id} titulo={p.titulo} />
+            <a
+              href={waUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-1.5 text-[12px] font-semibold text-[#25D366] border border-[#25D366]/25 hover:bg-[#25D366] hover:text-white hover:border-[#25D366] px-3.5 py-1.5 rounded-sm transition-all duration-200"
+            >
+              <WhatsAppIcon />
+              WhatsApp
+            </a>
+          </div>
         </div>
       </div>
     </article>
